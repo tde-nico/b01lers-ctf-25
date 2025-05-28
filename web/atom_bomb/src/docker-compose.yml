@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  cookie_shop:
+    container_name: atom_bomb
+    build:
+      dockerfile: ./Dockerfile
+    ports:
+      - "6888:6888"
+    env_file: env

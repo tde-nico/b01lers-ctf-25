@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atom Bomb Alert System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a; /* Dark background */
+            color: #e0e0e0; /* Light text */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content horizontally */
+        }
+
+        button {
+            background-color: #d9534f; /* Red */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px; /* Spacing below the button */
+            transition: background-color 0.3s; /* Smooth transition */
+        }
+
+        button:hover {
+            background-color: #c9302c; /* Darker red on hover */
+        }
+
+        div {
+            width: 100%; /* Full width of the container */
+            max-width: 400px; /* Max width for larger screens */
+            margin-bottom: 20px; /* Spacing between sections */
+            background-color: #2a2a2a; /* Darker card background */
+            padding: 15px;
+            border: 1px solid #444; /* Darker border */
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Darker shadow */
+        }
+
+        h2 {
+            color: #d9534f; /* Red for urgency */
+            text-align: center;
+        }
+
+        h6 {
+            color: #bbb; /* Light gray for subheadings */
+            margin-top: 20px;
+            margin-bottom: 5px;
+        }
+
+        p {
+            background-color: #333; /* Dark background for paragraphs */
+            border: 1px solid #555; /* Darker border */
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0 20px 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #444; /* Dark border around images */
+            border-radius: 5px;
+        }
+
+        #danger {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #d9534f; /* Red */
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome to Atom Bomb Alert System</h2>
+
+    <button onclick="check_alert()">Check for bomb alert</button>
+
+    <div>
+        <h2>Bomb Details</h2>
+        <h6>Bomb Location</h6>
+        <p id="location"></p>
+        <h6>Bomb Altitude</h6>
+        <p id="altitude"></p>
+        <h6>Bomb Power</h6>
+        <p id="power"></p>
+    </div>
+
+    <div>
+        <h2>Danger Assessment</h2>
+        <p id="danger"></p>
+
+        <img id="explosion" alt="Atom Bomb Explosion">
+    </div>
+</body>
+</html>
+
+<script>
+async function get_bomb() {
+    try {
+        const responce = await fetch("/atom_bomb");
+
+        if (responce.ok) {
+            return await responce.json();
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error(error.message);
+        return null;
+    }
+}
+
+async function check_bomb_danger(bomb) {
+    // convert altitude to an atom
+    bomb.altitude = ":" + bomb.altitude
+
+    payload = {
+        impact: {
+            bomb: bomb
+        }
+    };
+
+    try {
+        const responce = await fetch("/bomb_impacts", {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (responce.ok) {
+            return (await responce.json()).message;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error(error.message);
+        return null;
+    }
+}
+
+async function check_alert() {
+    const bomb = await get_bomb();
+
+    const location = document.getElementById("location");
+    const altitude = document.getElementById("altitude");
+    const power = document.getElementById("power");
+
+    location.innerHTML = bomb.location;
+    altitude.innerHTML = bomb.altitude;
+    power.innerHTML = bomb.power;
+
+    const explosion = document.getElementById("explosion");
+    explosion.src = `/images/atom${bomb.explosion_type}.png`;
+
+    const message = await check_bomb_danger(bomb);
+
+    const danger = document.getElementById("danger");
+    danger.innerHTML = message;
+}
+
+check_alert();
+</script>

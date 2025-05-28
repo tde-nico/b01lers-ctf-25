@@ -1,0 +1,5 @@
+PORT=6888
+MIX_ENV=prod
+PHX_HOST=0.0.0.0
+# Different on remote
+SECRET_KEY_BASE="h61Sc3j6y4f91h7sWyBEGI5MCLufFW/048YHXh+2sw5M2dsBLbJ+FYtec09uf4yB"
